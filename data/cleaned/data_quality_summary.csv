@@ -1,0 +1,8 @@
+dataset,rows,duplicate_rows,missing_values_total
+orders,99441,0,10838
+order_items,112650,0,0
+products,32951,0,1838
+customers,99441,0,0
+payments,103886,0,0
+reviews,99224,0,145903
+sellers,3095,0,0
