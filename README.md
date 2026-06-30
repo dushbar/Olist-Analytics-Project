@@ -47,7 +47,6 @@ The project is designed as a portfolio-grade analytics case study showing how ra
 - **Python** - data cleaning and preprocessing
 - **pandas** - CSV transformation and validation
 - **SQL Server** - staging layer, analytics layer, validation queries
-- **T-SQL** - analytical views and grain-safe modelling
 - **Power BI** - dashboard design, DAX measures, slicers, KPI cards, and visuals
 
 ---
