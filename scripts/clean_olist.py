@@ -1,11 +1,6 @@
 # import
 import pandas as pd
-import numpy as np
 from pathlib import Path
-import os
-
-
-print(os.getcwd())
 
 
 # define paths
@@ -27,6 +22,7 @@ category_translation = pd.read_csv(
 customers = pd.read_csv(RAW_DIR / "olist_customers_dataset.csv")
 payments = pd.read_csv(RAW_DIR / "olist_order_payments_dataset.csv")
 reviews = pd.read_csv(RAW_DIR / "olist_order_reviews_dataset.csv")
+sellers = pd.read_csv(RAW_DIR / "olist_sellers_dataset.csv")
 
 
 # Initial Inspection
@@ -37,7 +33,8 @@ datasets = {
     "products": products,
     "customers": customers,
     "payments": payments,
-    "reviews": reviews
+    "reviews": reviews,
+    "sellers": sellers
 }
 
 for name, df in datasets.items():
@@ -62,7 +59,7 @@ products = datasets["products"]
 customers = datasets["customers"]
 payments = datasets["payments"]
 reviews = datasets["reviews"]
-
+sellers = datasets["sellers"]
 
 
 # parse timestamp columns in orders
@@ -110,12 +107,16 @@ orders["delivery_days"] = (
     - orders["order_purchase_timestamp"]
 ).dt.days
 
-orders["is_late"] = (
-    orders["order_delivered_customer_date"]
-    > orders["order_estimated_delivery_date"]
-)
 
+orders["is_late"] = pd.NA
+delivered_mask = orders["order_delivered_customer_date"].notna()
+orders.loc[delivered_mask, "is_late"] = (
+    orders.loc[delivered_mask, "order_delivered_customer_date"]
+    > orders.loc[delivered_mask, "order_estimated_delivery_date"]
+).astype(int)
 orders["is_late"] = orders["is_late"].astype("Int64")
+orders["is_late"] = orders["is_late"].astype("Int64")
+
 
 # create purchase month: will be
 # useful for cohort analysis
@@ -159,5 +160,26 @@ payments.to_csv(
 
 reviews.to_csv(
     CLEAN_DIR / "clean_reviews.csv",
+    index=False
+)
+
+sellers.to_csv(
+    CLEAN_DIR / "clean_sellers.csv",
+    index=False
+)
+
+## Data Quality Report
+quality_report = []
+
+for name, df in datasets.items():
+    quality_report.append({
+        "dataset": name,
+        "rows": len(df),
+        "duplicate_rows": df.duplicated().sum(),
+        "missing_values_total": df.isna().sum().sum()
+    })
+
+pd.DataFrame(quality_report).to_csv(
+    CLEAN_DIR / "data_quality_summary.csv",
     index=False
 )
